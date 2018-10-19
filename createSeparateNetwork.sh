@@ -1,7 +1,7 @@
 #!/bin/bash 
 if [ -z $1 ]; 
 then 
-	echo "Usage: ./createSeparateNetwork.sh <NetworkName>" 
+	echo "Usage: ./createSeparateNetwork.sh <NetworkName>"
 	exit 1
 fi
 MY_NETWORK=$1
