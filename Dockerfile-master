@@ -1,0 +1,33 @@
+FROM ubuntu:16.04
+RUN apt-get update && apt-get upgrade -y
+RUN export DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y wget apt-utils nano software-properties-common python-software-properties debconf-utils git git-core vim 
+RUN add-apt-repository 'deb http://archive.ubuntu.com/ubuntu trusty universe'
+RUN apt-get update
+RUN echo "mysql-server mysql-server/root_password password 1234qwer" | debconf-set-selections
+RUN echo "mysql-server mysql-server/root_password_again password 1234qwer" | debconf-set-selections
+RUN apt-get -y install mysql-server-5.6 libmysqlclient-dev gosu
+#FROM mysql:5.6
+ENV MYSQL_ROOT_USER="root" 
+ENV MYSQL_ROOT_PASSWORD="1234qwer"
+ENV MYSQL_MASTER_HOST="172.18.0.2"
+ENV MYSQL_SLAVE_HOST="172.18.0.3"
+ENV MYSQL_REPL_USER="repl"
+ENV MYSQL_REPL_PASSWORD="repl"
+ENV MYSQL_MASTER_LOG_FILE="mysql-bin.000008"
+ENV MYSQL_MASTER_LOG_POSITION="120"
+WORKDIR /
+RUN uname
+RUN uname
+RUN git clone https://github.com/yavor-princeberk/mysql-replication.git /git-mysql
+RUN cp /git-mysql/mysql-master.cnf /etc/mysql/my.cnf 
+RUN chmod +x /git-mysql/*.sh
+#Assume a new installation
+RUN rm -f /var/lib/mysql/ib* 
+#VOLUME /var/lib/mysql
+#RUN ./etc/init.d/mysql start
+EXPOSE 3306
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD "/git-mysql/startMysql.sh" && /bin/bash
